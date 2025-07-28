@@ -2,6 +2,7 @@ package com.springprojects.banking_application.service;
 
 import com.springprojects.banking_application.dto.AccountInfo;
 import com.springprojects.banking_application.dto.BankResponseDTO;
+import com.springprojects.banking_application.dto.EmailDetailsDTO;
 import com.springprojects.banking_application.dto.UserRequestDTO;
 import com.springprojects.banking_application.entity.User;
 import com.springprojects.banking_application.repository.userRepo;
@@ -16,6 +17,9 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     userRepo userRepo;
+
+    @Autowired
+    EmailService emailService;
     @Override
     public BankResponseDTO createAccount(UserRequestDTO userRequestDTO) {
 
@@ -46,6 +50,14 @@ public class UserServiceImpl implements UserService{
                 .build();
 
         User savedUser = userRepo.save(newUser);
+
+        //Send email Alerts
+        EmailDetailsDTO emailDetailsDTO = EmailDetailsDTO.builder().recipient(savedUser.getEmail())
+                .subject("ACCOUNT CREATION SUCCESSFUL")
+                .messageBody("Congratulations, your account has been created successfully created.\n Find your account details:\n Account name: "+savedUser.getFirstName() +" "+savedUser.getLastName()+" "+savedUser.getOtherName() +"\nAccount Number: " + savedUser.getAccountNumber())
+                .build();
+        emailService.sendEmailAlert(emailDetailsDTO);
+
         return BankResponseDTO.builder()
                         .responseCode(AccountUtils.ACCOUNT_CREATION_CODE)
                                 .responseMessage(AccountUtils.ACCOUNT_CREATION_MESSAGE)

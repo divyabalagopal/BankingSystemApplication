@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountInfo {
+public class  AccountInfo {
     private String accountName;
     private BigDecimal accountBalance;
     private String accountNumber;
