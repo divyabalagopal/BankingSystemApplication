@@ -7,8 +7,22 @@ public class AccountUtils {
     public static final String ACCOUNT_CREATION_CODE = "200";
     public static final String ACCOUNT_CREATION_MESSAGE="New account has been created successfully!";
 
+    public static final String ACCOUNT_DOES_NOT_EXIST_CODE = "404";
+    public static final String ACCOUNT_DOES_NOT_EXIST_MESSAGE="There is no account with the entered Account Number. Please re-enter a valid account number!";
     public static final String ACCOUNT_EXISTS_CODE = "001";
     public static final String ACCOUNT_EXISTS_MESSAGE="User Already has an account!";
+
+    public static final String ACCOUNT_FOUND_CODE = "200";
+    public static final String ACCOUNT_FOUND_MESSAGE="User successfully found";
+
+    public static final String ACCOUNT_CREDIT_SUCCESS= "200";
+    public static final String ACCOUNT_CREDIT_SUCCESS_MESSAGE="Amount credited to user's account successfully";
+
+    public static final String ACCOUNT_DEBIT_SUCCESS_CODE= "200";
+    public static final String ACCOUNT_DEBIT_SUCCESS_MESSAGE="Amount debited from user's account successfully";
+
+    public static final String ACCOUNT_DEBIT_FAILED_CODE= "500";
+    public static final String ACCOUNT_DEBIT_FAILED_MESSAGE="Amount failed to debit from user's account";
 
     /* always begin with current year and concatenate any random 6 digits with it*/
 
