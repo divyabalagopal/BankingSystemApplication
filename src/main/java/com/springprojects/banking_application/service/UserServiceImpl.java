@@ -4,6 +4,7 @@ import com.springprojects.banking_application.dto.*;
 import com.springprojects.banking_application.entity.User;
 import com.springprojects.banking_application.repository.userRepo;
 import com.springprojects.banking_application.utils.AccountUtils;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -193,5 +194,90 @@ public class UserServiceImpl implements UserService{
                         .accountNumber(debitRequestDTO.getAccountNumber())
                         .build())
                 .build();
+    }
+
+    @Transactional
+    @Override
+    public BankResponseDTO transferRequest(TransferDTO transfer) {
+       //get the account to debit, check if it exists
+        boolean isSourceAccExists = userRepo.existsByAccountNumber(transfer.getAccountNumberTransferredFrom());
+        boolean isDestinationAccExists = userRepo.existsByAccountNumber(transfer.getAccountNumberTransferredTo());
+
+        if(!isDestinationAccExists)
+        {
+            return BankResponseDTO.builder()
+                    .responseCode("500")
+                    .responseMessage("Destination account does not exist")
+                    .accountInfo(null)
+                    .build();
+        }
+
+        if(!isSourceAccExists)
+        {
+            return BankResponseDTO.builder()
+                    .responseCode("500")
+                    .responseMessage("Source account ds not exist")
+                    .accountInfo(null)
+                    .build();
+        }
+
+        User sourceAccountUser = userRepo.findByAccountNumber(transfer.getAccountNumberTransferredFrom());
+
+        //check if the amount debitting is not more than current balance of source acc
+
+        if(transfer.getAmount().compareTo(sourceAccountUser.getAccountBalance()) > 0)
+        {
+            return BankResponseDTO.builder()
+                    .responseMessage("Insufficent Balance")
+                    .responseCode("500")
+                    .accountInfo(AccountInfo.builder()
+                            .accountNumber(transfer.getAccountNumberTransferredFrom())
+                            .accountName(STR."\{sourceAccountUser.getFirstName()} \{sourceAccountUser.getLastName()}\{sourceAccountUser.getOtherName()}")
+                            .accountBalance(sourceAccountUser.getAccountBalance())
+                            .build())
+                    .build();
+        }
+
+        //debit the current account
+        sourceAccountUser.setAccountBalance(sourceAccountUser.getAccountBalance().subtract(transfer.getAmount()));
+        userRepo.save(sourceAccountUser);
+
+        //Email to be sent
+
+        EmailDetailsDTO alertEmailforDebit = EmailDetailsDTO.builder()
+                .subject("DEBIT ALERT")
+                .recipient(sourceAccountUser.getEmail())
+                .messageBody(STR."Amount: \{transfer.getAmount()}has been deducted from your account.")
+                .build();
+
+        //call the email service and send an email to the user
+        emailService.sendEmailAlert(alertEmailforDebit);
+
+        //get the account to credit
+
+        User destinationAccountNumber = userRepo.findByAccountNumber(transfer.getAccountNumberTransferredTo());
+
+        //credit the account
+        destinationAccountNumber.setAccountBalance(destinationAccountNumber.getAccountBalance().add(transfer.getAmount()));
+        userRepo.save(destinationAccountNumber);
+
+        //Email to be sent to credited user
+
+        EmailDetailsDTO alertEmailForCredit = EmailDetailsDTO.builder()
+                .subject("CREDIT ALERT")
+                .recipient(destinationAccountNumber.getEmail())
+                .messageBody(STR."Amount: \{transfer.getAmount()}has been credited to your account.")
+                .build();
+
+        //call the email service and send an email to the user
+        emailService.sendEmailAlert(alertEmailForCredit);
+
+        return BankResponseDTO.builder()
+                .responseCode("100")
+                .responseMessage("Transfer has been successful")
+                .accountInfo(AccountInfo.builder()
+                        .accountNumber(sourceAccountUser.getAccountNumber())
+                        .accountBalance(sourceAccountUser.getAccountBalance())
+                        .build()).build();
     }
 }

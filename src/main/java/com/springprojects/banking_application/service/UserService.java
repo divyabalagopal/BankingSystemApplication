@@ -1,9 +1,6 @@
 package com.springprojects.banking_application.service;
 
-import com.springprojects.banking_application.dto.BankResponseDTO;
-import com.springprojects.banking_application.dto.CreditDebitRequestDTO;
-import com.springprojects.banking_application.dto.EnquiryRequestDTO;
-import com.springprojects.banking_application.dto.UserRequestDTO;
+import com.springprojects.banking_application.dto.*;
 
 public interface UserService {
 
@@ -17,4 +14,5 @@ public interface UserService {
 
    BankResponseDTO debitRequest(CreditDebitRequestDTO creditDebitRequestDTO);
 
+   BankResponseDTO transferRequest(TransferDTO transfer);
 }
