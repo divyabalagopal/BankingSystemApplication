@@ -24,6 +24,7 @@ External Libraries:
 - Spring Boot Email Service for Email Notifications
 - Lombok for reducing boilerplate code
 - SLF4J for application logging
+- OpenAPI/Swagger for comprehensive API documentation
 
 Project Architecture
 
